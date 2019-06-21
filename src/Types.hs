@@ -1,19 +1,38 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 module Types where
 
-import RIO
-import RIO.Process
+import           Data.Word
+import           RIO
+import qualified RIO.Map     as Map
+import           RIO.Process
+
+
+newtype MemMap = MemMap
+  { mmRCC :: Word32
+  } deriving (Eq, Ord, Show)
+
+
+memMaps :: Map String MemMap
+memMaps = Map.fromList
+  [ ( "stm32f103"
+    , MemMap
+      { mmRCC = 0x40021000
+      }
+    )
+  ]
+
 
 -- | Command line arguments
 data Options = Options
-  { optionsVerbose :: !Bool
+  { optVerbose :: !Bool
+  , optMemMap  :: !MemMap
   }
 
+
 data App = App
-  { appLogFunc :: !LogFunc
+  { appLogFunc        :: !LogFunc
   , appProcessContext :: !ProcessContext
-  , appOptions :: !Options
-  -- Add other app-specific configuration information here
+  , appOptions        :: !Options
   }
 
 instance HasLogFunc App where
