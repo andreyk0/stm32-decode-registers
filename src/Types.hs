@@ -1,41 +1,46 @@
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE TemplateHaskell   #-}
+
 module Types where
 
 import           Data.Word
+import           Lens.Micro
+import           Lens.Micro.TH
 import           RIO
-import qualified RIO.Map     as Map
+import qualified RIO.Map       as Map
 import           RIO.Process
 
 
-newtype MemMap = MemMap
-  { mmRCC :: Word32
-  } deriving (Eq, Ord, Show)
+newtype DeviceModel = DeviceModel String deriving (Eq,Ord,Show)
 
 
-memMaps :: Map String MemMap
-memMaps = Map.fromList
-  [ ( "stm32f103"
-    , MemMap
-      { mmRCC = 0x40021000
-      }
-    )
-  ]
+-- | Main CLI command
+data CLICommand =
+    CMDList
+  | CMDPrint DeviceModel
+  | CMDDecode DeviceModel
+  deriving (Eq,Ord,Show)
 
 
 -- | Command line arguments
-data Options = Options
-  { optVerbose :: !Bool
-  , optMemMap  :: !MemMap
+newtype Options = Options
+  { _optVerbose :: Bool
   }
+
+makeLenses ''Options
 
 
 data App = App
-  { appLogFunc        :: !LogFunc
-  , appProcessContext :: !ProcessContext
-  , appOptions        :: !Options
+  { _appLogFunc        :: !LogFunc
+  , _appProcessContext :: !ProcessContext
+  , _appOptions        :: !Options
   }
 
+makeLenses ''App
+
+
 instance HasLogFunc App where
-  logFuncL = lens appLogFunc (\x y -> x { appLogFunc = y })
+  logFuncL = appLogFunc
+
 instance HasProcessContext App where
-  processContextL = lens appProcessContext (\x y -> x { appProcessContext = y })
+  processContextL = appProcessContext

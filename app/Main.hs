@@ -2,18 +2,19 @@
 {-# LANGUAGE TemplateHaskell   #-}
 module Main (main) where
 
+
 import           Import
 import           Options.Applicative.Simple
 import qualified Paths_stm32_decode_registers
-import qualified RIO.List                     as L
-import qualified RIO.Map                      as Map
 import           RIO.Process
 import           Run
 
 
 main :: IO ()
 main = do
-  (options, ()) <- simpleOptions
+  let deviceModelOpt = DeviceModel <$> strOption (short 'm' <> long "model" <> help "Device model")
+
+  (options, cmd) <- simpleOptions
     $(simpleVersion Paths_stm32_decode_registers.version)
     "Decode some STM32 registers from a GDB memory dump"
     "E.g. STM32F1 'x/64xb 0x40021000'"
@@ -22,20 +23,27 @@ main = do
                  <> short 'v'
                  <> help "Verbose output?"
                   )
-       <*> option (maybeReader (`Map.lookup` memMaps))
-                  ( long "memory-map"
-                 <> short 'm'
-                 <> help ("Memory map: " <> L.intercalate " " (Map.keys memMaps))
-                  )
     )
-    empty
+    (do addCommand "list"
+                    "List devices"
+                    (const CMDList)
+                    (pure ())
 
-  lo <- logOptionsHandle stderr (optVerbose options)
+        addCommand "print"
+                    "Print device memory map"
+                    CMDPrint deviceModelOpt
+
+        addCommand "decode"
+                    "Decode GDB memory dump"
+                    CMDPrint deviceModelOpt
+    )
+
+  lo <- logOptionsHandle stderr (options ^. optVerbose)
   pc <- mkDefaultProcessContext
   withLogFunc lo $ \lf ->
     let app = App
-          { appLogFunc = lf
-          , appProcessContext = pc
-          , appOptions = options
+          { _appLogFunc = lf
+          , _appProcessContext = pc
+          , _appOptions = options
           }
-     in runRIO app run
+     in runRIO app (run cmd)

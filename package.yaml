@@ -24,6 +24,9 @@ dependencies:
 - bytestring
 - data-stm32
 - file-embed
+- filepath
+- microlens
+- microlens-th
 - rio
 - tar
 - zlib

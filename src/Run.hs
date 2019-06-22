@@ -1,12 +1,24 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
+
 module Run (run) where
 
 import           Import
+import           Prelude (print)
 import           SVDData
 
-run :: RIO App ()
-run = do
-  logInfo "We're inside the application!"
-  liftIO printTarEntries
+run
+  :: CLICommand
+  -> RIO App ()
 
+
+run CMDList =
+  forM_ stmDeviceModels (liftIO . print)
+
+
+{-
+
+    CMDList
+  | CMDPrint DeviceModel
+  | CMDDecode DeviceModel
+-}

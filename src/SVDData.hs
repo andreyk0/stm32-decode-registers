@@ -1,7 +1,8 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE ViewPatterns    #-}
 
 module SVDData
-  ( printTarEntries
+  ( stmDeviceModels
   ) where
 
 
@@ -11,16 +12,28 @@ import qualified Data.ByteString        as BS
 import qualified Data.ByteString.Lazy   as LB
 import           Data.FileEmbed
 import           Import
+import qualified System.FilePath.Posix  as PFP
+import           Types
 
 
 
-printTarEntries :: IO ()
-printTarEntries = printNextEntry stmTarEntries
+stmDeviceModels :: [DeviceModel]
+stmDeviceModels = DeviceModel . fst <$> stmSvdFileData
+
+
+stmSvdFileData :: [(FilePath, LB.ByteString)]
+stmSvdFileData = nextEntry stmTarEntries
   where
-    printNextEntry Tar.Done        = pure ()
-    printNextEntry (Tar.Fail e)    = print e
-    printNextEntry (Tar.Next e es) = print (Tar.entryPath e) >> printNextEntry es
+    nextEntry Tar.Done        = []
+    nextEntry (Tar.Fail e)    = error $ show e
 
+    nextEntry (Tar.Next e@(Tar.entryContent -> (Tar.NormalFile bs _)) es) =
+      let (bname, ext) = (PFP.takeBaseName &&& PFP.takeExtension) (Tar.entryPath e)
+       in if ext == ".svd"
+             then (bname, bs) : nextEntry es
+             else nextEntry es
+
+    nextEntry (Tar.Next _ es) = nextEntry es
 
 
 stmTarEntries :: Tar.Entries Tar.FormatError
