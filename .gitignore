@@ -1,5 +1,6 @@
-*.cabal
 *~
+*.cabal
+.stack-work/
 *.swp
 tarballs/
-.stack-work/
+/*.tgz
