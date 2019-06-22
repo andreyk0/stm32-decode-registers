@@ -4,7 +4,8 @@
 module Run (run) where
 
 import           Import
-import           Prelude (print)
+import           Prelude  (putStrLn)
+import qualified RIO.List as List
 import           SVDData
 
 run
@@ -13,7 +14,8 @@ run
 
 
 run CMDList =
-  forM_ stmDeviceModels (liftIO . print)
+  forM_ (List.sort stmDeviceModels) $ \(DeviceModel m) ->
+    liftIO $ putStrLn m
 
 
 {-
