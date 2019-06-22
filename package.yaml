@@ -26,6 +26,7 @@ dependencies:
 - file-embed
 - rio
 - tar
+- zlib
 
 ghc-options:
 - -Wall
