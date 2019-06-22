@@ -4,7 +4,7 @@
 module Run (run) where
 
 import           Import
-import           Prelude  (putStrLn)
+import           Prelude  (print, putStrLn)
 import qualified RIO.List as List
 import           SVDData
 
@@ -18,9 +18,9 @@ run CMDList =
     liftIO $ putStrLn m
 
 
-{-
+run (CMDPrint m) = liftIO $ lookupStmDevice m >>= print
 
-    CMDList
-  | CMDPrint DeviceModel
+
+{-
   | CMDDecode DeviceModel
 -}

@@ -25,10 +25,12 @@ dependencies:
 - data-stm32
 - file-embed
 - filepath
+- hxt
 - microlens
 - microlens-th
 - rio
 - tar
+- utf8-string
 - zlib
 
 ghc-options:
