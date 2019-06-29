@@ -56,3 +56,12 @@ data PeripheralRegister = PeripheralRegister
   } deriving (Eq, Ord, Show)
 
 makeLenses ''PeripheralRegister
+
+prPeripheralName :: SimpleGetter PeripheralRegister String
+prPeripheralName = prPeripheral . to periphName
+
+prRegisterName :: SimpleGetter PeripheralRegister String
+prRegisterName = prRegister . to regName
+
+prRegisterDescription :: SimpleGetter PeripheralRegister String
+prRegisterDescription = prRegister . to regDescription
