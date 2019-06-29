@@ -20,6 +20,7 @@ extra-source-files:
 description:         Please see the README on Github at <https://github.com/githubuser/stm32-decode-registers#readme>
 
 dependencies:
+- ansi-wl-pprint
 - base
 - bytestring
 - data-stm32
@@ -28,8 +29,11 @@ dependencies:
 - hxt
 - microlens
 - microlens-th
+- prettyprinter
 - rio
+- say
 - tar
+- text
 - utf8-string
 - zlib
 

@@ -3,11 +3,8 @@
 
 module Types where
 
-import           Data.Word
-import           Lens.Micro
+import           Import
 import           Lens.Micro.TH
-import           RIO
-import qualified RIO.Map       as Map
 import           RIO.Process
 
 

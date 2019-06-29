@@ -18,6 +18,7 @@ import           Import
 import qualified System.FilePath.Posix           as PFP
 import qualified Text.XML.HXT.Arrow.ReadDocument as XML
 import qualified Text.XML.HXT.Arrow.XmlState     as XML
+import           Types
 
 
 newtype SVDException = SVDException String deriving Show

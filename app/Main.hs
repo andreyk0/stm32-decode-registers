@@ -8,6 +8,7 @@ import           Options.Applicative.Simple
 import qualified Paths_stm32_decode_registers
 import           RIO.Process
 import           Run
+import           Types
 
 
 main :: IO ()
