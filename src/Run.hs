@@ -1,16 +1,23 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards   #-}
+{-# LANGUAGE TypeApplications  #-}
+
 
 module Run (run) where
 
-import qualified Data.SVD.Pretty              as SVD
-import qualified Data.Text.IO                 as IO
+
+import qualified Data.SVD.Pretty                       as SVD
+import           Data.SVD.Types
+import           Data.Text.Prettyprint.Doc.Render.Text (putDoc)
 import           Import
-import           Prelude                      (print, putStrLn)
-import qualified RIO.List                     as List
+import           Pretty
+import qualified RIO.List                              as List
+import qualified RIO.Map                               as Map
 import           SVDData
-import qualified Text.PrettyPrint.ANSI.Leijen as PP
+import           SVDDevice
 import           Types
+
 
 run
   :: CLICommand
@@ -18,10 +25,21 @@ run
 
 
 run CMDList =
-  forM_ (List.sort stmDeviceModels) $ \(DeviceModel m) ->
-    say' m
+  forM_ (List.sort stmDeviceModels)
+        (say' @String . coerce)
 
 
-run (CMDPrint m) = do
-  d <- liftIO $ lookupStmDevice m
+run (CMDPrintSVD dModel) =
+  liftIO (lookupStmDevice dModel) >>=
+    say' . SVD.ppDevice
+
+
+run (CMDPrintRegisters dModel) = do
+  d@Device{..} <- liftIO $ lookupStmDevice dModel
+  let addr2reg = List.sort $ snd <$> Map.toList (allRegisterOffsets d)
+  liftIO $ putDoc $ ppPeripheralRegisters addr2reg
+
+
+run (CMDDecode dModel hexFile) = do
+  d <- liftIO $ lookupStmDevice dModel
   say' $ SVD.ppDevice d

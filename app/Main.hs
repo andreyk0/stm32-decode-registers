@@ -30,13 +30,21 @@ main = do
                     (const CMDList)
                     (pure ())
 
-        addCommand "print"
-                    "Print device memory map"
-                    CMDPrint deviceModelOpt
+        addCommand "print-svd"
+                    "Print device SVD database info"
+                    CMDPrintSVD deviceModelOpt
+
+        addCommand "print-registers"
+                    "Print absolute register addresses"
+                    CMDPrintRegisters deviceModelOpt
 
         addCommand "decode"
                     "Decode GDB memory dump"
-                    CMDPrint deviceModelOpt
+                    id
+                    ( CMDDecode
+                   <$> deviceModelOpt
+                   <*> strOption (short 'f' <> long "file" <> help "HEX memory dump file from GDB")
+                    )
     )
 
   lo <- logOptionsHandle stderr (options ^. optVerbose)

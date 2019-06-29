@@ -1,12 +1,13 @@
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE NoImplicitPrelude          #-}
+{-# LANGUAGE TemplateHaskell            #-}
 
 module Types where
 
+import           Data.SVD.Types
 import           Import
 import           Lens.Micro.TH
 import           RIO.Process
-
 
 newtype DeviceModel = DeviceModel String deriving (Eq,Ord,Show)
 
@@ -14,8 +15,10 @@ newtype DeviceModel = DeviceModel String deriving (Eq,Ord,Show)
 -- | Main CLI command
 data CLICommand =
     CMDList
-  | CMDPrint DeviceModel
-  | CMDDecode DeviceModel
+  | CMDPrintSVD DeviceModel
+  | CMDPrintRegisters DeviceModel
+  | CMDDecode DeviceModel FilePath
+    -- ^ device and a filepath to a hex memory dump
   deriving (Eq,Ord,Show)
 
 
@@ -41,3 +44,15 @@ instance HasLogFunc App where
 
 instance HasProcessContext App where
   processContextL = appProcessContext
+
+
+newtype Address = Address Word32 deriving (Eq, Ord, Show, Num)
+
+
+data PeripheralRegister = PeripheralRegister
+  { _prAddress    :: !Address
+  , _prPeripheral :: !Peripheral
+  , _prRegister   :: !Register
+  } deriving (Eq, Ord, Show)
+
+makeLenses ''PeripheralRegister

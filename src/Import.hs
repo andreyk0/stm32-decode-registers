@@ -21,8 +21,8 @@ import           Say
 
 
 say'
-  :: ( MonadIO m
-     , Display a
+  :: ( Display a
+     , MonadIO m
      )
   => a
   -> m ()
@@ -30,8 +30,8 @@ say' = say . textDisplay
 
 
 sayErr'
-  :: ( MonadIO m
-     , Display a
+  :: ( Display a
+     , MonadIO m
      )
   => a
   -> m ()
