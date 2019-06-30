@@ -10,6 +10,7 @@ module Run (run) where
 import qualified Data.SVD.Pretty                       as SVD
 import           Data.SVD.Types
 import           Data.Text.Prettyprint.Doc.Render.Text (putDoc)
+import           GDBDump
 import           Import
 import           Pretty
 import qualified RIO.List                              as List
@@ -43,3 +44,6 @@ run (CMDPrintRegisters dModel) = do
 run (CMDDecode dModel hexFile) = do
   d <- liftIO $ lookupStmDevice dModel
   say' $ SVD.ppDevice d
+
+  mem <- parseDumpFile hexFile
+  sayShow mem

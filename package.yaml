@@ -19,6 +19,9 @@ extra-source-files:
 # common to point users to the README.md file.
 description:         Please see the README on Github at <https://github.com/githubuser/stm32-decode-registers#readme>
 
+# https://github.com/haskell/cabal/issues/5961
+other-extensions: TemplateHaskell
+
 dependencies:
 - ansi-wl-pprint
 - base
@@ -27,8 +30,10 @@ dependencies:
 - file-embed
 - filepath
 - hxt
+- megaparsec
 - microlens
 - microlens-th
+- parser-combinators
 - prettyprinter
 - rio
 - say
@@ -62,6 +67,12 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
 
+    when:
+    - condition: flag(static)
+      ld-options:
+      - -static
+      - -pthread
+
 tests:
   stm32-decode-registers-test:
     main:                Spec.hs
@@ -74,3 +85,8 @@ tests:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+flags:
+  static:
+    description: Pass -static/-pthread to ghc when linking the stack binary.
+    manual: true
+    default: false

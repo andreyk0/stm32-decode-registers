@@ -1,7 +1,8 @@
 *~
+/bin
 *.cabal
 .stack-work/
+/*.svg
 *.swp
 tarballs/
 /*.tgz
-/bin
