@@ -65,3 +65,28 @@ prRegisterName = prRegister . to regName
 
 prRegisterDescription :: SimpleGetter PeripheralRegister String
 prRegisterDescription = prRegister . to regDescription
+
+prRegisterSize :: SimpleGetter PeripheralRegister Int
+prRegisterSize = prRegister . to regSize
+
+prRegisterFields :: SimpleGetter PeripheralRegister [Field]
+prRegisterFields = prRegister . to regFields
+
+
+data PeripheralFieldValue = PeripheralFieldValue
+  { _pfvPeripheral :: !Peripheral
+  , _pfvRegister   :: !Register
+  , _pfvField      :: !Field
+  , _pfvValue      :: !Word32
+  } deriving (Eq, Ord, Show)
+
+makeLenses ''PeripheralFieldValue
+
+pfvPeripheralName :: SimpleGetter PeripheralFieldValue String
+pfvPeripheralName = pfvPeripheral . to periphName
+
+pfvRegisterName :: SimpleGetter PeripheralFieldValue String
+pfvRegisterName = pfvRegister . to regName
+
+pfvFieldName :: SimpleGetter PeripheralFieldValue String
+pfvFieldName = pfvField . to fieldName

@@ -1,47 +1,73 @@
-{-# LANGUAGE BangPatterns      #-}
 {-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE RankNTypes        #-}
-{-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE TypeApplications  #-}
+{-# LANGUAGE ViewPatterns      #-}
 
 
 module Pretty
-  ( ppPeripheralRegister
+  ( ppPeripheralFieldValues
   , ppPeripheralRegisters
   , ppWord32Hex
   ) where
 
 
+import           Data.Monoid
+import           Data.Semigroup
 import           Data.Text.Prettyprint.Doc
 import           Import
 import           Text.Printf
 import           Types
 
 
+type MaxWidthPr = (Max Int, Max Int)
+type MaxWidthPfv = (Max Int, Max Int, Max Int)
+
+
+ppPeripheralFieldValues
+  :: [PeripheralFieldValue]
+  -> Doc ann
+ppPeripheralFieldValues pfvs =
+  vcat $ ppPeripheralFieldValue mw <$> pfvs
+  where
+    mw = foldMap (\x ->
+                    ( (Max . length . view pfvPeripheralName) x
+                    , (Max . length . view pfvRegisterName) x
+                    , (Max . length . view pfvFieldName) x
+                    )
+                 ) pfvs
+
+
+ppPeripheralFieldValue
+  :: MaxWidthPfv
+  -> PeripheralFieldValue
+  -> Doc ann
+ppPeripheralFieldValue (coerce -> mwP, coerce -> mwR, coerce -> mwF) pfv =
+  (pfv ^. pfvPeripheralName . to (fill mwP . pretty)) <+>
+  (pfv ^. pfvRegisterName . to (fill mwR . pretty))  <+>
+  (pfv ^. pfvFieldName . to (fill mwF . pretty)) <+>
+  (pfv ^. pfvValue . to ppWord32Hex)
+
+
 ppPeripheralRegisters
   :: [PeripheralRegister]
   -> Doc ann
 ppPeripheralRegisters prs =
-  vcat $ ppPeripheralRegister' mw <$> prs
+  vcat $ ppPeripheralRegister mw <$> prs
   where
-    mw = foldMap maxWidth prs
+    mw = foldMap ( Max . length . view prPeripheralName
+               &&& Max . length . view prRegisterName
+                 ) prs
 
 
 ppPeripheralRegister
-  :: PeripheralRegister
-  -> Doc ann
-ppPeripheralRegister = ppPeripheralRegister' maxWidthDef
-
-
-ppPeripheralRegister'
-  :: MaxWidth
+  :: MaxWidthPr
   -> PeripheralRegister
   -> Doc ann
-ppPeripheralRegister' MaxWidth{..} pr =
+ppPeripheralRegister (coerce -> mwP, coerce -> mwR) pr =
   (pr ^. prAddress . to ppWord32Hex) <+>
-  (pr ^. prPeripheralName . to (fill mwPeripheralName . pretty)) <+>
-  (pr ^. prRegisterName . to (fill mwRegisterName . pretty))  <+>
+  (pr ^. prPeripheralName . to (fill mwP . pretty)) <+>
+  (pr ^. prRegisterName . to (fill mwR . pretty))  <+>
   if pr ^. prRegisterName == pr ^. prRegisterDescription
     then mempty
     else pr ^. prRegisterDescription . to pretty
@@ -53,27 +79,3 @@ ppWord32Hex
   -> Doc ann
 ppWord32Hex w = pretty @String $
   printf "0x%08x" (coerce w :: Word32)
-
-
-
-data MaxWidth = MaxWidth
-  { mwPeripheralName :: !Int
-  , mwRegisterName   :: !Int
-  } deriving (Eq, Ord, Show)
-
-instance Semigroup MaxWidth where
-  (MaxWidth !p0 !r0) <> (MaxWidth !p1 !r1) = MaxWidth (max p0 p1) (max r0 r1)
-
-instance Monoid MaxWidth where
-  mempty = MaxWidth 0 0
-
-
-maxWidthDef :: MaxWidth
-maxWidthDef = MaxWidth 20 30
-
-maxWidth
-  :: PeripheralRegister
-  -> MaxWidth
-maxWidth pr =
-  MaxWidth (pr ^. prPeripheralName . to length)
-           (pr ^. prRegisterName . to length)

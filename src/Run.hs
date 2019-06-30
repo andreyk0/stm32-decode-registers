@@ -1,5 +1,4 @@
 {-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE TypeApplications  #-}
 
@@ -42,8 +41,8 @@ run (CMDPrintRegisters dModel) = do
 
 
 run (CMDDecode dModel hexFile) = do
+  hDump <- parseDumpFile hexFile
   d <- liftIO $ lookupStmDevice dModel
-  say' $ SVD.ppDevice d
 
-  mem <- parseDumpFile hexFile
-  sayShow mem
+  liftIO $ putDoc $ ppPeripheralFieldValues $
+    decodeRegisterData (allRegisterOffsets d) hDump
