@@ -90,3 +90,7 @@ pfvRegisterName = pfvRegister . to regName
 
 pfvFieldName :: SimpleGetter PeripheralFieldValue String
 pfvFieldName = pfvField . to fieldName
+
+
+pfvFieldBitWidth :: SimpleGetter PeripheralFieldValue Int
+pfvFieldBitWidth = pfvField . to fieldBitWidth

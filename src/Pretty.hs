@@ -28,7 +28,8 @@ ppPeripheralFieldValues
   :: [PeripheralFieldValue]
   -> Doc ann
 ppPeripheralFieldValues pfvs =
-  vcat $ ppPeripheralFieldValue mw <$> pfvs
+  vcat (ppPeripheralFieldValue mw <$> pfvs) <+>
+  line
   where
     mw = foldMap (\x ->
                     ( (Max . length . view pfvPeripheralName) x
@@ -46,14 +47,17 @@ ppPeripheralFieldValue (coerce -> mwP, coerce -> mwR, coerce -> mwF) pfv =
   (pfv ^. pfvPeripheralName . to (fill mwP . pretty)) <+>
   (pfv ^. pfvRegisterName . to (fill mwR . pretty))  <+>
   (pfv ^. pfvFieldName . to (fill mwF . pretty)) <+>
-  (pfv ^. pfvValue . to ppWord32Hex)
+  (pfv ^. pfvValue . to ppWord32Hex) <+>
+  (pfv ^. pfvValue . to (ppWord32Bin (pfv ^. pfvFieldBitWidth)))
+
 
 
 ppPeripheralRegisters
   :: [PeripheralRegister]
   -> Doc ann
 ppPeripheralRegisters prs =
-  vcat $ ppPeripheralRegister mw <$> prs
+  vcat (ppPeripheralRegister mw <$> prs) <+>
+  line
   where
     mw = foldMap ( Max . length . view prPeripheralName
                &&& Max . length . view prRegisterName
@@ -79,3 +83,12 @@ ppWord32Hex
   -> Doc ann
 ppWord32Hex w = pretty @String $
   printf "0x%08x" (coerce w :: Word32)
+
+
+ppWord32Bin
+  :: forall a ann . (Coercible a Word32)
+  => Int
+  -> a
+  -> Doc ann
+ppWord32Bin numZ w = pretty @String $
+  printf ("0b%0" <> show numZ <> "b") (coerce w :: Word32)

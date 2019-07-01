@@ -1,8 +1,6 @@
 {-# LANGUAGE BangPatterns      #-}
 {-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
-{-# LANGUAGE TypeApplications  #-}
 
 
 module SVDDevice
@@ -54,21 +52,22 @@ registerData
   -> [(Address, Word8)] -- ^ address/data
   -> [(PeripheralRegister, [Word8])]
 registerData _ []                    = []
-registerData addr2reg ds@((a,_):dss) =
-  maybe more
+registerData addr2reg ds@((a,_):_) =
+  maybe (more 1)
         (\pr -> ( pr
-                , snd <$> take (pr ^. prRegisterSize `div` 8) ds)
-                  : more
+                , snd <$> take (rSzBytes pr) ds)
+                  : more (rSzBytes pr)
                 )
         (Map.lookup a addr2reg)
   where
-    more = registerData addr2reg dss
+    more n = registerData addr2reg (drop n ds)
+    rSzBytes pr = pr ^. prRegisterSize `div` 8
 
 
 decodeFields
   :: (PeripheralRegister, [Word8])
   -> [PeripheralFieldValue]
-decodeFields (pr, [w3,w2,w1,w0]) = -- assuming 32b registers
+decodeFields (pr, [w0,w1,w2,w3]) = -- assuming 32b registers
   decodeFieldVal mkPfv regVal <$> pr ^. prRegisterFields
   where
     regVal = fromIntegral w0 +
@@ -92,5 +91,3 @@ decodeFieldVal mkRes regVal fld = mkRes fld fldVal
 
     fldVal :: Word32
     fldVal = regVal .&. fldMask `shiftR` fieldBitOffset fld
-
-
