@@ -87,7 +87,7 @@ decodeFieldVal
 decodeFieldVal mkRes regVal fld = mkRes fld fldVal
   where
     fldMask :: Word32
-    fldMask = foldl' setBit zeroBits [0..(fieldBitWidth fld - 1)] `shiftL` fieldBitOffset fld
+    fldMask = foldl' setBit zeroBits [0..(fieldBitWidth fld - 1)]
 
     fldVal :: Word32
-    fldVal = regVal .&. fldMask `shiftR` fieldBitOffset fld
+    fldVal = (regVal `shiftR` fieldBitOffset fld) .&. fldMask
