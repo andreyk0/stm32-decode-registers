@@ -41,10 +41,11 @@ x/64xb 0x40021000
 Decode
 
 ``` bash
-$ stm32-decode-registers decode --model STM32F107xx --file dump
+$ stm32-decode-registers decode --model STM32F107xx --file data/STM32F107xx.dump | head -5
 RCC CR       HSION      0x00000001 0b1
 RCC CR       HSIRDY     0x00000001 0b1
-RCC CR       HSITRIM    0x00000003 0b00011
-RCC CR       HSICAL     0x00000083 0b10000011
+RCC CR       HSITRIM    0x00000010 0b10000
+RCC CR       HSICAL     0x00000065 0b01100101
+RCC CR       HSEON      0x00000000 0b0
 ..........
 ```
