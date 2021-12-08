@@ -9,6 +9,7 @@ module Pretty
   ( ppPeripheralFieldValues
   , ppPeripheralRegisters
   , ppWord32Hex
+  , ppWord32Bin
   ) where
 
 
